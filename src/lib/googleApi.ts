@@ -211,7 +211,9 @@ export async function initSpreadsheet(): Promise<string | null> {
 				{ headers: getHeaders() },
 			);
 			const fileData = await getFileRes.json();
-			const previousParents = fileData.parents ? fileData.parents.join(",") : "";
+			const previousParents = fileData.parents
+				? fileData.parents.join(",")
+				: "";
 
 			await fetch(
 				`https://www.googleapis.com/drive/v3/files/${spreadsheetId}?addParents=${findProductFolderId}&removeParents=${previousParents}`,

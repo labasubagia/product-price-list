@@ -37,9 +37,7 @@ export function ProductCard({ product, onEdit }: ProductCardProps) {
 
 			<div className="mt-auto pt-4 border-t border-slate-100 flex justify-between items-center">
 				<div>
-					<p className="text-xs text-slate-500 font-medium mb-0.5">
-						Price
-					</p>
+					<p className="text-xs text-slate-500 font-medium mb-0.5">Price</p>
 					<p className="text-base font-bold text-primary-700">
 						{formatCurrency(product.price)}
 					</p>
