@@ -24,9 +24,6 @@ export function ProductCard({ product, onEdit }: ProductCardProps) {
 					<h3 className="text-lg font-semibold text-slate-800 leading-tight">
 						{product.name}
 					</h3>
-					<span className="inline-block mt-1.5 px-2.5 py-1 bg-slate-100 text-slate-600 text-xs font-medium rounded-md">
-						{product.category || "Uncategorized"}
-					</span>
 				</div>
 				<button
 					type="button"
@@ -38,31 +35,13 @@ export function ProductCard({ product, onEdit }: ProductCardProps) {
 				</button>
 			</div>
 
-			<div className="mt-auto pt-4 border-t border-slate-100 grid grid-cols-2 gap-y-3 gap-x-4">
+			<div className="mt-auto pt-4 border-t border-slate-100 flex justify-between items-center">
 				<div>
 					<p className="text-xs text-slate-500 font-medium mb-0.5">
-						Selling Price
+						Price
 					</p>
 					<p className="text-base font-bold text-primary-700">
-						{formatCurrency(product.sellingPrice)}
-					</p>
-				</div>
-				<div>
-					<p className="text-xs text-slate-500 font-medium mb-0.5">Stock</p>
-					<p
-						className={`text-sm font-semibold ${
-							product.stock <= 5 ? "text-red-600" : "text-slate-700"
-						}`}
-					>
-						{product.stock} units
-					</p>
-				</div>
-				<div className="col-span-2">
-					<p className="text-xs text-slate-400 font-medium mb-0.5">
-						Purchase Price
-					</p>
-					<p className="text-sm text-slate-600 font-medium">
-						{formatCurrency(product.purchasePrice)}
+						{formatCurrency(product.price)}
 					</p>
 				</div>
 			</div>

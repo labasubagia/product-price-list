@@ -4,10 +4,7 @@ const SCOPES =
 export interface Product {
 	id: string;
 	name: string;
-	category: string;
-	purchasePrice: number;
-	sellingPrice: number;
-	stock: number;
+	price: number;
 }
 
 // biome-ignore lint/suspicious/noExplicitAny: Mocking missing Google types
@@ -215,14 +212,7 @@ export async function initSpreadsheet(): Promise<string | null> {
 			);
 
 			// 5. Add header row
-			await appendSpreadsheetRow(spreadsheetId, [
-				"ID",
-				"Name",
-				"Category",
-				"Purchase Price",
-				"Selling Price",
-				"Stock",
-			]);
+			await appendSpreadsheetRow(spreadsheetId, ["ID", "Name", "Price"]);
 
 			return spreadsheetId;
 		} catch (error) {
@@ -241,7 +231,7 @@ export async function initSpreadsheet(): Promise<string | null> {
 export async function fetchProducts(spreadsheetId: string): Promise<Product[]> {
 	try {
 		const res = await fetch(
-			`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Sheet1!A2:F`,
+			`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Sheet1!A2:C`,
 			{ headers: getHeaders() },
 		);
 		const data = await res.json();
@@ -250,10 +240,7 @@ export async function fetchProducts(spreadsheetId: string): Promise<Product[]> {
 		return rows.map((row: string[]) => ({
 			id: row[0],
 			name: row[1] || "",
-			category: row[2] || "",
-			purchasePrice: Number(row[3]) || 0,
-			sellingPrice: Number(row[4]) || 0,
-			stock: Number(row[5]) || 0,
+			price: Number(row[2]) || 0,
 		}));
 	} catch (error) {
 		console.error("Error fetching products:", error);
@@ -267,7 +254,7 @@ export async function appendSpreadsheetRow(
 ): Promise<boolean> {
 	try {
 		const res = await fetch(
-			`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Sheet1!A:F:append?valueInputOption=USER_ENTERED`,
+			`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Sheet1!A:C:append?valueInputOption=USER_ENTERED`,
 			{
 				method: "POST",
 				headers: getHeaders(),
@@ -290,7 +277,7 @@ export async function updateSpreadsheetRow(
 	const sheetRow = rowIndex + 2;
 	try {
 		const res = await fetch(
-			`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Sheet1!A${sheetRow}:F${sheetRow}?valueInputOption=USER_ENTERED`,
+			`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Sheet1!A${sheetRow}:C${sheetRow}?valueInputOption=USER_ENTERED`,
 			{
 				method: "PUT",
 				headers: getHeaders(),

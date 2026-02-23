@@ -55,10 +55,7 @@ export function Dashboard({ onLogout }: DashboardProps) {
 				const rowData = [
 					editingProduct.id,
 					productData.name || "",
-					productData.category || "",
-					productData.purchasePrice || 0,
-					productData.sellingPrice || 0,
-					productData.stock || 0,
+					productData.price || 0,
 				];
 
 				const success = await updateSpreadsheetRow(
@@ -79,14 +76,7 @@ export function Dashboard({ onLogout }: DashboardProps) {
 		} else {
 			// Add new
 			const newId = Date.now().toString();
-			const rowData = [
-				newId,
-				productData.name || "",
-				productData.category || "",
-				productData.purchasePrice || 0,
-				productData.sellingPrice || 0,
-				productData.stock || 0,
-			];
+			const rowData = [newId, productData.name || "", productData.price || 0];
 
 			const success = await appendSpreadsheetRow(spreadsheetId, rowData);
 			if (success) {

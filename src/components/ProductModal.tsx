@@ -25,10 +25,7 @@ export function ProductModal({
 			} else {
 				setFormData({
 					name: "",
-					category: "",
-					purchasePrice: 0,
-					sellingPrice: 0,
-					stock: 0,
+					price: 0,
 				});
 			}
 		}
@@ -40,10 +37,7 @@ export function ProductModal({
 		const { name, value } = e.target;
 		setFormData((prev) => ({
 			...prev,
-			[name]:
-				name === "purchasePrice" || name === "sellingPrice" || name === "stock"
-					? Number(value)
-					: value,
+			[name]: name === "price" ? Number(value) : value,
 		}));
 	};
 
@@ -109,89 +103,27 @@ export function ProductModal({
 
 						<div>
 							<label
-								htmlFor="category"
+								htmlFor="price"
 								className="block text-sm font-medium text-slate-700 mb-1.5"
 							>
-								Category
+								Price *
 							</label>
-							<input
-								type="text"
-								id="category"
-								name="category"
-								value={formData.category || ""}
-								onChange={handleChange}
-								className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all"
-								placeholder="e.g. Beverages"
-							/>
-						</div>
-
-						<div className="grid grid-cols-2 gap-4">
-							<div>
-								<label
-									htmlFor="purchasePrice"
-									className="block text-sm font-medium text-slate-700 mb-1.5"
-								>
-									Purchase Price
-								</label>
-								<div className="relative">
-									<span className="absolute left-4 top-2.5 text-slate-500">
-										$
-									</span>
-									<input
-										type="number"
-										id="purchasePrice"
-										name="purchasePrice"
-										min="0"
-										value={formData.purchasePrice || ""}
-										onChange={handleChange}
-										className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all"
-										placeholder="0"
-									/>
-								</div>
+							<div className="relative">
+								<span className="absolute left-4 top-2.5 text-slate-500 font-medium">
+									$
+								</span>
+								<input
+									type="number"
+									id="price"
+									name="price"
+									required
+									min="0"
+									value={formData.price || ""}
+									onChange={handleChange}
+									className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all font-semibold"
+									placeholder="0"
+								/>
 							</div>
-							<div>
-								<label
-									htmlFor="sellingPrice"
-									className="block text-sm font-medium text-slate-700 mb-1.5"
-								>
-									Selling Price *
-								</label>
-								<div className="relative">
-									<span className="absolute left-4 top-2.5 text-slate-500 font-medium">
-										$
-									</span>
-									<input
-										type="number"
-										id="sellingPrice"
-										name="sellingPrice"
-										required
-										min="0"
-										value={formData.sellingPrice || ""}
-										onChange={handleChange}
-										className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all font-semibold"
-										placeholder="0"
-									/>
-								</div>
-							</div>
-						</div>
-
-						<div>
-							<label
-								htmlFor="stock"
-								className="block text-sm font-medium text-slate-700 mb-1.5"
-							>
-								Initial Stock
-							</label>
-							<input
-								type="number"
-								id="stock"
-								name="stock"
-								min="0"
-								value={formData.stock || ""}
-								onChange={handleChange}
-								className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all"
-								placeholder="0"
-							/>
 						</div>
 					</form>
 				</div>
