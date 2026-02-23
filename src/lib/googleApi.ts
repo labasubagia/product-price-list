@@ -11,6 +11,7 @@ export interface Product {
 let tokenClient: any = null;
 let currentToken = localStorage.getItem("gsi_access_token") || "";
 let tokenExpiry = Number(localStorage.getItem("gsi_token_expiry")) || 0;
+let userEmail = localStorage.getItem("gsi_user_email") || "";
 
 export function initGoogleIdentity(
 	clientId: string,
@@ -73,9 +74,11 @@ export function isAuthenticated(): boolean {
 export function logout() {
 	currentToken = "";
 	tokenExpiry = 0;
+	userEmail = "";
 	initPromise = null;
 	localStorage.removeItem("gsi_access_token");
 	localStorage.removeItem("gsi_token_expiry");
+	localStorage.removeItem("gsi_user_email");
 }
 
 function getHeaders() {
@@ -90,12 +93,19 @@ function getHeaders() {
 // -------------------------------------------------------------
 
 async function fetchUserEmail(): Promise<string | null> {
+	if (userEmail) return userEmail;
+
 	try {
 		const res = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
 			headers: getHeaders(),
 		});
 		const data = await res.json();
-		return data.email || null;
+		if (data.email) {
+			userEmail = data.email;
+			localStorage.setItem("gsi_user_email", userEmail);
+			return userEmail;
+		}
+		return null;
 	} catch (error) {
 		console.error("Error fetching user email:", error);
 		return null;
