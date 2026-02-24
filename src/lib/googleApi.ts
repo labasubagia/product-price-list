@@ -224,7 +224,15 @@ export async function initSpreadsheet(): Promise<string | null> {
 			);
 
 			// 5. Add header row
-			await appendSpreadsheetRow(spreadsheetId, ["ID", "Name", "Price"]);
+			const mapping = ["id", "name", "price"];
+			await fetch(
+				`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Sheet1!A1:C1?valueInputOption=USER_ENTERED`,
+				{
+					method: "PUT",
+					headers: getHeaders(),
+					body: JSON.stringify({ values: [mapping] }),
+				},
+			);
 
 			return spreadsheetId;
 		} catch (error) {
@@ -240,19 +248,44 @@ export async function initSpreadsheet(): Promise<string | null> {
 // Sheets API - Data Operations
 // -------------------------------------------------------------
 
-export async function fetchProducts(spreadsheetId: string): Promise<Product[]> {
+async function getHeaderMapping(
+	spreadsheetId: string,
+): Promise<Record<string, number>> {
 	try {
 		const res = await fetch(
-			`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Sheet1!A2:C`,
+			`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Sheet1!1:1`,
+			{ headers: getHeaders() },
+		);
+		const data = await res.json();
+		const headers = data.values ? data.values[0] : [];
+		const mapping: Record<string, number> = {};
+
+		for (let i = 0; i < headers.length; i++) {
+			mapping[headers[i].toLowerCase()] = i;
+		}
+
+		return mapping;
+	} catch (error) {
+		console.error("Error fetching headers:", error);
+		return { id: 0, name: 1, price: 2 }; // Fallback to defaults
+	}
+}
+
+export async function fetchProducts(spreadsheetId: string): Promise<Product[]> {
+	try {
+		const mapping = await getHeaderMapping(spreadsheetId);
+
+		const res = await fetch(
+			`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Sheet1!A2:Z`,
 			{ headers: getHeaders() },
 		);
 		const data = await res.json();
 		const rows = data.values || [];
 
 		return rows.map((row: string[]) => ({
-			id: row[0],
-			name: row[1] || "",
-			price: Number(row[2]) || 0,
+			id: row[mapping.id] || "",
+			name: row[mapping.name] || "",
+			price: Number(row[mapping.price]) || 0,
 		}));
 	} catch (error) {
 		console.error("Error fetching products:", error);
@@ -262,15 +295,23 @@ export async function fetchProducts(spreadsheetId: string): Promise<Product[]> {
 
 export async function appendSpreadsheetRow(
 	spreadsheetId: string,
-	values: (string | number)[],
+	product: Product,
 ): Promise<boolean> {
 	try {
+		const mapping = await getHeaderMapping(spreadsheetId);
+		const maxIndex = Math.max(...Object.values(mapping));
+		const row = new Array(maxIndex + 1).fill("");
+
+		if (mapping.id !== undefined) row[mapping.id] = product.id;
+		if (mapping.name !== undefined) row[mapping.name] = product.name;
+		if (mapping.price !== undefined) row[mapping.price] = product.price;
+
 		const res = await fetch(
-			`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Sheet1!A:C:append?valueInputOption=USER_ENTERED`,
+			`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Sheet1!A:Z:append?valueInputOption=USER_ENTERED`,
 			{
 				method: "POST",
 				headers: getHeaders(),
-				body: JSON.stringify({ values: [values] }),
+				body: JSON.stringify({ values: [row] }),
 			},
 		);
 		return res.ok;
@@ -283,17 +324,25 @@ export async function appendSpreadsheetRow(
 export async function updateSpreadsheetRow(
 	spreadsheetId: string,
 	rowIndex: number,
-	values: (string | number)[],
+	product: Product,
 ): Promise<boolean> {
 	// Row 1 is header, Row 2 is data index 0. So exact sheet row is rowIndex + 2.
 	const sheetRow = rowIndex + 2;
 	try {
+		const mapping = await getHeaderMapping(spreadsheetId);
+		const maxIndex = Math.max(...Object.values(mapping));
+		const row = new Array(maxIndex + 1).fill("");
+
+		if (mapping.id !== undefined) row[mapping.id] = product.id;
+		if (mapping.name !== undefined) row[mapping.name] = product.name;
+		if (mapping.price !== undefined) row[mapping.price] = product.price;
+
 		const res = await fetch(
-			`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Sheet1!A${sheetRow}:C${sheetRow}?valueInputOption=USER_ENTERED`,
+			`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Sheet1!A${sheetRow}:Z${sheetRow}?valueInputOption=USER_ENTERED`,
 			{
 				method: "PUT",
 				headers: getHeaders(),
-				body: JSON.stringify({ values: [values] }),
+				body: JSON.stringify({ values: [row] }),
 			},
 		);
 		return res.ok;

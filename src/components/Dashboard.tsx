@@ -52,16 +52,16 @@ export function Dashboard({ onLogout }: DashboardProps) {
 			// Update existing
 			const rowIndex = products.findIndex((p) => p.id === editingProduct.id);
 			if (rowIndex !== -1) {
-				const rowData = [
-					editingProduct.id,
-					productData.name || "",
-					productData.price || 0,
-				];
+				const updatedProduct = {
+					id: editingProduct.id,
+					name: productData.name || "",
+					price: productData.price || 0,
+				};
 
 				const success = await updateSpreadsheetRow(
 					spreadsheetId,
 					rowIndex,
-					rowData,
+					updatedProduct,
 				);
 				if (success) {
 					setProducts((prev) =>
@@ -75,15 +75,15 @@ export function Dashboard({ onLogout }: DashboardProps) {
 			}
 		} else {
 			// Add new
-			const newId = Date.now().toString();
-			const rowData = [newId, productData.name || "", productData.price || 0];
+			const newProduct: Product = {
+				id: Date.now().toString(),
+				name: productData.name || "",
+				price: productData.price || 0,
+			};
 
-			const success = await appendSpreadsheetRow(spreadsheetId, rowData);
+			const success = await appendSpreadsheetRow(spreadsheetId, newProduct);
 			if (success) {
-				setProducts((prev) => [
-					...prev,
-					{ id: newId, ...productData } as Product,
-				]);
+				setProducts((prev) => [...prev, newProduct]);
 			} else {
 				alert("Failed to add product.");
 			}
